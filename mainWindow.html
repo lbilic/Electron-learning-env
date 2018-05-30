@@ -5,16 +5,19 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
 </head>
 <body>
-  <nav hidden>
+  <nav>
     <div class="nav-wrapper">
       <a class="brand-logo center">Predmeti</a>
     </div>
   </nav>
-  <ul hidden></ul>
+  <ul></ul>
+
+
 
   <script>
     const electron = require('electron');
     const {ipcRenderer} = electron;
+    const {Menu, MenuItem} = electron;
     const ul = document.querySelector('ul');
 
     // Add item
@@ -40,6 +43,16 @@
       if(ul.children.length == 0){
         ul.className = '';
       }
+    }
+
+    ul.addEventListener('contextmenu', openContext);
+    function openContext(e){
+      console.log(1231421);
+      ipcRenderer.send('item:context', e.target);
+      const ctxMenu = new Menu();
+      ctxMenu.append(new MenuItem({
+        label: 'Help'
+      }));
     }
   </script>
 </body>

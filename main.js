@@ -2,7 +2,7 @@ const electron = require('electron');
 const url = require('url');
 const path = require('path');
 
-const {app, BrowserWindow, Menu, ipcMain} = electron;
+const {app, BrowserWindow, Menu, MenuItem, ipcMain} = electron;
 
 // SET ENV (to production)
 //process.env.NODE_ENV = 'production';
@@ -57,6 +57,17 @@ ipcMain.on('item:add', function(e, item){
   mainWindow.webContents.send('item:add', item);
   addPredmetWindow.close();
 });
+
+// Catch item:context
+ipcMain.on('item:context', function(e, item){
+  const ctxMenu = new Menu();
+  ctxMenu.append(new MenuItem({
+    label: 'Help'
+  }));
+
+  ctxMenu.popup(mainWindow, e.x, e.y);
+});
+
 
 // Create menu template
 const mainMenuTemplate = [
