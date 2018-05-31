@@ -3,6 +3,14 @@
 <head>
   <title>Raspored</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+  <style>
+  /*#first-list, #second-list {
+    width: 350px;
+    height: 70px;
+    padding: 10px;
+    border: 1px solid #aaaaaa;
+  }*/
+  </style>
 </head>
 <body>
   <nav>
@@ -10,23 +18,48 @@
       <a class="brand-logo center">Predmeti</a>
     </div>
   </nav>
-  <ul></ul>
-
-
+  <ul id="first-list" ondrop="drop(event)" ondragover="allowDrop(event)"></ul>
+  <ul id="second-list" ondrop="drop(event)" ondragover="allowDrop(event)"></ul>
 
   <script>
     const electron = require('electron');
     const {ipcRenderer} = electron;
-    const {Menu, MenuItem} = electron;
-    const ul = document.querySelector('ul');
+    //const {Menu, MenuItem} = electron;
+    const Menu = electron.Menu;
+    const MenuItem = electron.MenuItem;
+    const ul = document.getElementById('first-list');
+    const ul2 = document.getElementById('second-list');
+
+    function allowDrop(ev) {
+    ev.preventDefault();
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    function drop(ev) {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+    if(ev.target.className == 'collection') {
+      ev.target.appendChild(document.getElementById(data));
+    }
+    else if(ev.target.className=='collection-item')
+      ev.target.parentElement.appendChild(document.getElementById(data));
+    }
 
     // Add item
     ipcRenderer.on('item:add', function(e, item){
       ul.className = 'collection';
+      ul2.className = 'collection';
       const li = document.createElement('li');
       li.className = 'collection-item';
       const itemText = document.createTextNode(item);
       li.appendChild(itemText);
+      li.draggable="true";
+      li.addEventListener('dragstart', drag);
+      li.addEventListener('dblclick', removeItem);
+      li.id=item;
       ul.appendChild(li);
     });
 
@@ -34,6 +67,8 @@
     ipcRenderer.on('item:clear', function(e){
       ul.innerHTML = '';
       ul.className = '';
+      ul2.innerHTML = '';
+      ul2.className = '';
     });
 
     // Remove item
@@ -43,16 +78,15 @@
       if(ul.children.length == 0){
         ul.className = '';
       }
+      if(ul2.children.length == 0){
+        ul2.className = '';
+      }
     }
 
     ul.addEventListener('contextmenu', openContext);
     function openContext(e){
       console.log(1231421);
       ipcRenderer.send('item:context', e.target);
-      const ctxMenu = new Menu();
-      ctxMenu.append(new MenuItem({
-        label: 'Help'
-      }));
     }
   </script>
 </body>

@@ -2,7 +2,7 @@ const electron = require('electron');
 const url = require('url');
 const path = require('path');
 
-const {app, BrowserWindow, Menu, MenuItem, ipcMain} = electron;
+const {app, BrowserWindow, Menu, MenuItem, ipcMain, globalShortcut} = electron;
 
 // SET ENV (to production)
 //process.env.NODE_ENV = 'production';
@@ -23,6 +23,7 @@ app.on('ready', function(){
 
   // Quit app when closed
   mainWindow.on('closed', function(){
+    globalShortcut.unregisterAll();
     app.quit();
   });
 
@@ -30,6 +31,10 @@ app.on('ready', function(){
   const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
   // Insert menu
   Menu.setApplicationMenu(mainMenu);
+
+  globalShortcut.register('CmdOrCtrl+Shift+H', function(){
+    mainWindow.show();
+  })
 });
 
 // Handle create add window
@@ -66,6 +71,9 @@ ipcMain.on('item:context', function(e, item){
   }));
 
   ctxMenu.popup(mainWindow, e.x, e.y);
+  ctxMenu.on('close', function(){
+    ctxMenu = null;
+  });
 });
 
 
